@@ -9,6 +9,7 @@ import { externalURL } from './config.mjs';
 import { resolveLanguage, translate } from './i18n.mjs';
 import { WINDOWS, agentMarker, edition, targetId } from './platform.mjs';
 import { minWindowSize, restoreWindowBounds } from './window-bounds.mjs';
+import { createContentZoom } from './content-zoom.mjs';
 import { killTree } from './processes.mjs';
 
 app.setName('Open DeepTutor');
@@ -24,6 +25,7 @@ const runtimeHome = path.join(userRoot, 'workspace');
 const logPath = path.join(userRoot, 'logs/runtime.log');
 const activeFile = path.join(userRoot, 'active.json');
 const windowStateFile = path.join(userRoot, 'window-state.json');
+const zoomFile = path.join(userRoot, 'content-zoom.json');
 const transactionFile = path.join(userRoot, 'upgrade.json');
 // DeepTutor's own Settings page writes the interface language and theme here.
 const interfaceFile = path.join(runtimeHome, 'data/user/settings/interface.json');
@@ -32,6 +34,8 @@ const publicKey = await readFile(path.join(sourceDirectory, '../assets/runtime-p
 // macOS draws the shell's own title bar under the traffic lights; Windows keeps its native frame and menu bar.
 const HEADER_HEIGHT = WINDOWS ? 0 : 44;
 const BACKGROUND = { light: '#ffffff', dark: '#161618' };
+let contentZoom;
+let zoomWrite = Promise.resolve();
 let window;
 let view;
 let contentVisible = false;
@@ -220,6 +224,7 @@ async function openContent(ready) {
   nextView.setBackgroundColor(BACKGROUND[ui.theme]);
   nextView.setVisible(false);
   const content = nextView.webContents;
+  contentZoom?.attach(content);
   content.setWindowOpenHandler(({ url: target }) => {
     if (target.startsWith(origin + '/') || target.startsWith(`blob:${origin}/`)) {
       return { action: 'allow', overrideBrowserWindowOptions: {
@@ -245,6 +250,7 @@ async function openContent(ready) {
   // Load the canonical chat route directly; the Next.js root redirects to it.
   await content.loadURL(new URL('/chat', ready.url).href);
   if (view === nextView && !quitting) {
+    if (WINDOWS && !content.isDestroyed()) void content.setVisualZoomLevelLimits(1, 1).catch(() => {});
     layout();
     nextView.setVisible(true);
     contentVisible = true;
@@ -451,9 +457,9 @@ function buildMenu() {
     { label: t('view'), submenu: [
       { label: t('reload'), accelerator: 'CmdOrCtrl+R', click: () => view?.webContents.reload() },
       { type: 'separator' },
-      { label: t('actualSize'), accelerator: 'CmdOrCtrl+0', click: () => view?.webContents.setZoomLevel(0) },
-      { label: t('zoomIn'), accelerator: 'CmdOrCtrl+Plus', click: () => view?.webContents.setZoomLevel(view.webContents.getZoomLevel() + 0.5) },
-      { label: t('zoomOut'), accelerator: 'CmdOrCtrl+-', click: () => view?.webContents.setZoomLevel(view.webContents.getZoomLevel() - 0.5) },
+      { label: t('actualSize'), accelerator: 'CmdOrCtrl+0', click: () => WINDOWS ? contentZoom.reset() : view?.webContents.setZoomLevel(0) },
+      { label: t('zoomIn'), accelerator: WINDOWS ? 'Ctrl+=' : 'CmdOrCtrl+Plus', click: () => WINDOWS ? contentZoom.step(1) : view?.webContents.setZoomLevel(view.webContents.getZoomLevel() + 0.5) },
+      { label: t('zoomOut'), accelerator: 'CmdOrCtrl+-', click: () => WINDOWS ? contentZoom.step(-1) : view?.webContents.setZoomLevel(view.webContents.getZoomLevel() - 0.5) },
       { type: 'separator' },
       { role: 'togglefullscreen', label: t('fullscreen') },
     ] },
@@ -482,12 +488,18 @@ else {
     if (quitting) return;
     quitting = true;
     status({ phase: 'stopping', step: 'stopping' });
-    void Promise.all([persistWindowState(true), stopWorker()]).finally(() => { exitAllowed = true; app.quit(); });
+    void Promise.all([persistWindowState(true), zoomWrite, stopWorker()]).finally(() => { exitAllowed = true; app.quit(); });
   });
   app.on('window-all-closed', () => app.quit());
   // Electron waits for ESM evaluation before emitting ready; do not await ready
   // at module scope or the packaged application deadlocks before its first window.
   app.whenReady().then(async () => {
+  if (WINDOWS) {
+    const saved = await readJSON(zoomFile).catch(() => null);
+    contentZoom = createContentZoom(saved?.factor, factor => {
+      zoomWrite = zoomWrite.then(() => writeJSON(zoomFile, { factor })).catch(console.error);
+    });
+  }
   ui = await readInterface();
   nativeTheme.on('updated', () => void refreshInterface());
   const coreSession = session.fromPartition('persist:deeptutor');
@@ -511,6 +523,10 @@ else {
     ...(WINDOWS ? {} : { titleBarStyle: 'hiddenInset', trafficLightPosition: { x: 18, y: 16 } }),
     webPreferences: { preload: path.join(sourceDirectory, 'preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false },
   });
+  if (WINDOWS) {
+    window.webContents.setZoomMode('disabled');
+    window.webContents.setZoomFactor(1);
+  }
   window.webContents.on('will-navigate', event => event.preventDefault());
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   if (WINDOWS) {
