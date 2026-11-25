@@ -288,3 +288,5 @@ jobs:
             } else {
               core.info(`Verified all ${expected.length} desktop downloads for ${tag}.`);
             }
+
+# Fork validation only; candidate bf082537b2cecbf8113968b0f4138f6feb38f6db.
