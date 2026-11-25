@@ -433,3 +433,5 @@ jobs:
       - name: Fail if tests failed
         if: needs.video-lesson-sandbox.result != 'success' || needs.desktop.result == 'failure' || needs.chat-engine.result == 'failure' || needs.lint.result == 'failure' || needs.web-tests.result == 'failure' || needs.multi-worker-web.result == 'failure' || needs.import-check.result == 'failure' || needs.python-tests.result == 'failure'
         run: exit 1
+
+# Fork validation only; candidate c328eff55cefdaeef3bb3e9498b5f9066a5705b1.
