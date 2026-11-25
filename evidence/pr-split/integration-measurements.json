@@ -1,0 +1,164 @@
+{
+  "commit": "c21133a98bcf845b6e8845032b6282fbd315a063",
+  "launches": [
+    {
+      "launch": 1,
+      "phases": [
+        {
+          "ms": 510,
+          "phase": "starting",
+          "step": "verifying",
+          "visible": false
+        },
+        {
+          "ms": 1329,
+          "phase": "starting",
+          "step": "firstLaunch",
+          "visible": false
+        },
+        {
+          "ms": 38017,
+          "phase": "starting",
+          "step": "checking",
+          "visible": false
+        },
+        {
+          "ms": 41733,
+          "phase": "starting",
+          "step": "preparingUi",
+          "visible": false
+        },
+        {
+          "ms": 47538,
+          "phase": "starting",
+          "step": "startingCore",
+          "visible": false
+        },
+        {
+          "ms": 54531,
+          "phase": "starting",
+          "step": "openingSpace",
+          "visible": false
+        },
+        {
+          "ms": 55444,
+          "phase": "ready",
+          "step": "ready",
+          "visible": true
+        }
+      ],
+      "pid": 41244,
+      "launcherPid": 32056,
+      "hwnd": "3016790",
+      "dpi": 1.25,
+      "electron": "45.1.0",
+      "slowHintMs": 15533,
+      "handoffMs": 55444,
+      "frontend": "http://127.0.0.1:18802",
+      "backend": "http://127.0.0.1:18801",
+      "http": {
+        "backend": 200,
+        "chat": 200,
+        "proxy": 200
+      },
+      "visibleChatEditor": true,
+      "chatReadyMs": 56250,
+      "initialZoom": {
+        "body": 1,
+        "shell": 1,
+        "visible": true,
+        "url": "http://127.0.0.1:18802/chat?dt_workspace="
+      },
+      "exitCode": 0,
+      "portsClosed": true
+    },
+    {
+      "launch": 2,
+      "phases": [
+        {
+          "ms": 400,
+          "phase": "starting",
+          "step": "starting",
+          "visible": false
+        },
+        {
+          "ms": 634,
+          "phase": "starting",
+          "step": "checking",
+          "visible": false
+        },
+        {
+          "ms": 3202,
+          "phase": "starting",
+          "step": "startingCore",
+          "visible": false
+        },
+        {
+          "ms": 9036,
+          "phase": "starting",
+          "step": "openingSpace",
+          "visible": false
+        },
+        {
+          "ms": 9964,
+          "phase": "ready",
+          "step": "ready",
+          "visible": true
+        }
+      ],
+      "pid": 29700,
+      "launcherPid": 57776,
+      "hwnd": "2822392",
+      "dpi": 1.25,
+      "electron": "45.1.0",
+      "handoffMs": 9964,
+      "frontend": "http://127.0.0.1:18802",
+      "backend": "http://127.0.0.1:18801",
+      "http": {
+        "backend": 200,
+        "chat": 200,
+        "proxy": 200
+      },
+      "visibleChatEditor": true,
+      "chatReadyMs": 10489,
+      "initialZoom": {
+        "body": 1.1,
+        "shell": 1,
+        "visible": true,
+        "url": "http://127.0.0.1:18802/chat?dt_workspace="
+      },
+      "exitCode": 0,
+      "portsClosed": true
+    }
+  ],
+  "menuActions": [
+    {
+      "launch": 1,
+      "name": "Zoom In",
+      "method": "Windows UI Automation: View > Zoom In",
+      "measurement": {
+        "body": 1.1,
+        "shell": 1,
+        "visible": true,
+        "url": "http://127.0.0.1:18802/chat?dt_workspace="
+      },
+      "stored": 1.1
+    },
+    {
+      "launch": 2,
+      "name": "Actual Size",
+      "method": "Windows UI Automation: View > Actual Size",
+      "measurement": {
+        "body": 1,
+        "shell": 1,
+        "visible": true,
+        "url": "http://127.0.0.1:18802/chat?dt_workspace="
+      },
+      "stored": 1
+    }
+  ],
+  "result": "passed",
+  "coldHomeEntries": [],
+  "runtimeId": "1.7.4-c21133a98-x64",
+  "archiveSha256": "d1f64fcc5b1d60c6e9c0952746bdd0275f2817886bad3201c2fc1c09e18f44c2"
+}
